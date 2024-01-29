@@ -12,31 +12,37 @@ frameSize = 400
 
 while True:
     ret, frame = cap.read()
-
-    hands, frame = detector.findHands(frame)
-
-    cv2.imshow('Hand Detector', frame)
-
-    if hands:
-        hand = hands[0]
-        x, y, w, h = hand["bbox"]
-        whiteFrame= np.ones((frameSize, frameSize, 3), np.uint8)*255
-        handFrame = frame[y - offset:y + h + offset, x - offset:x + w + offset]
+    
+    try:
+        if not ret:
+            continue
         
-        ratio = h / w
-        if ratio > 1:
-            newW = math.ceil((w * frameSize) / h)
-            handFrameResized = cv2.resize(handFrame, (newW, frameSize))
-            k = math.ceil((frameSize - newW) / 2)
-            whiteFrame[0:handFrameResized.shape[0], k:handFrameResized.shape[1] + k] = handFrameResized
-        else:
-            newH = math.ceil((h * frameSize) / w)
-            handFrameResized = cv2.resize(handFrame, (frameSize, newH))
-            k = math.ceil((frameSize - newH) / 2)
-            whiteFrame[k:handFrameResized.shape[0] + k, 0:handFrameResized.shape[1]] = handFrameResized
+        hands, frame = detector.findHands(frame)
+        
+        cv2.imshow('Hand Detector', frame)
 
-        cv2.imshow('Cropped Hand Frame', whiteFrame)
-        cv2.imshow('Hand Frame Detection', handFrame)
+        if hands:
+            hand = hands[0]
+            x, y, w, h = hand["bbox"]
+            whiteFrame= np.ones((frameSize, frameSize, 3), np.uint8)*255
+            handFrame = frame[y - offset:y + h + offset, x - offset:x + w + offset]
+            
+            ratio = h / w
+            if ratio > 1:
+                newW = math.ceil((w * frameSize) / h)
+                handFrameResized = cv2.resize(handFrame, (newW, frameSize))
+                k = math.ceil((frameSize - newW) / 2)
+                whiteFrame[0:handFrameResized.shape[0], k:handFrameResized.shape[1] + k] = handFrameResized
+            else:
+                newH = math.ceil((h * frameSize) / w)
+                handFrameResized = cv2.resize(handFrame, (frameSize, newH))
+                k = math.ceil((frameSize - newH) / 2)
+                whiteFrame[k:handFrameResized.shape[0] + k, 0:handFrameResized.shape[1]] = handFrameResized
+
+            cv2.imshow('Cropped Hand Frame', whiteFrame)
+            cv2.imshow('Hand Frame Detection', handFrame)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
