@@ -9,3 +9,6 @@ __pycache__/
 
 # Ignore the Data collected
 Data/
+
+# Ignore the model file
+handSignDetector.keras
